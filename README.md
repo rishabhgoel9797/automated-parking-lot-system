@@ -4,3 +4,4 @@
 * Git clone the project
 * npm install
 * npm run start
+* port: 8080
