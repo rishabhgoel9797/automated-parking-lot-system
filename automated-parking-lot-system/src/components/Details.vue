@@ -7,9 +7,23 @@ import { template } from "babel-core";
                 <p>Total Parking Slots: <span class="countFetched">{{ parkings }}</span></p>
                 <p>Available Parking Slots: <span class="countFetched">{{ carsCount }}</span></p>
             </div>
+            <div class="formPark" v-if="parkCar">
+                <input
+                    type="text" placeholder="Enter Vehicle Number"
+                    v-model="newCarNumber"
+                >
+            <select v-model="newCarColor">
+                <option disabled value="">Choose Color</option>
+                <option v-for="color in newColorsList" v-bind:value="color">
+                    {{ color }}
+                </option>
+            </select>
+            <button class="addNewCar" @click="addNewCar()">Submit</button>
+            </div>
             <div class="query">
-                <button class="queryButton">Query Data</button>
-                <button class="parkButton">Park a Car</button>
+                <button class="queryButton" @click="checkAmount()">Query Data</button>
+                <button class="parkButton" @click="parkCarMethod()">Park a Car</button>
+                <h4 v-if="showAmount" class="showAmount">Collected Amount: {{ collectedAmountComputed }}</h4>
             </div>
         </div>
         <div class="searchData">
@@ -58,12 +72,16 @@ import { template } from "babel-core";
         display: flex;
         justify-content: space-between;
     }
-    .queryButton, .parkButton, .searchButton, .resetButton {
+    .queryButton, .parkButton, .searchButton, .resetButton, .addNewCar {
         border: none;
         color: white;
         padding: 5px 10px;
         border-radius: 7px;
         font-weight: bold;
+        cursor: pointer;
+    }
+    .addNewCar {
+        color: black;
     }
     .queryButton {
         background: green;
@@ -107,6 +125,9 @@ import { template } from "babel-core";
         border: none;
         border-radius: 5px;
         cursor: pointer;
+    }
+    .showAmount {
+
     }
 </style>
 

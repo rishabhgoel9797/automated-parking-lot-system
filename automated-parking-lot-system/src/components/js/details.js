@@ -8,17 +8,24 @@ export default {
             carColorSortCount: 0,
             carSlotSortCount: 0,
             colorsList: [],
+            collectedAmount: 0,
             filterByColor: '',
+            newCarColor: '',
+            newCarNumber: '',
+            newCarSlot: '',
+            newColorsList: ['red', 'blue', 'green', 'white', 'black'],
             parkings: '',
-            searchByRegNo: ''
+            parkCar: false,
+            searchByRegNo: '',
+            showAmount: false
         }
     },
     created () {
         this.parsedCarsDetails = JSON.parse(localStorage.getItem('carsDetails'))
         this.parkings = localStorage.getItem('parkingPlaces')
-        this.cars = parseInt(localStorage.getItem('carsCount'))
+        this.cars = parseInt(this.parkings) - parseInt(localStorage.getItem('carsCount'))
         this.getColors()
-        
+        this.collectedAmount = parseInt(localStorage.getItem('collectedAmount'))
     },
     computed: {
         parsedCarsDetailsReactively () {
@@ -28,8 +35,10 @@ export default {
             return this.cars
         },
         colorListReactive () {
-            console.log(this.colorsList)
             return this.colorsList
+        },
+        collectedAmountComputed () {
+            return this.collectedAmount
         }
     },
     methods: {
@@ -81,19 +90,73 @@ export default {
             })
         },
         removeCar (car) {
+            let colorOfRemovedCar = car.color
             this.parsedCarsDetails.forEach((obj, index) => {
                 if (obj.slotNo === car.slotNo) {
                     this.parsedCarsDetails.splice(index, 1)
                     localStorage.setItem('carsDetails', JSON.stringify(this.parsedCarsDetails))
+                    let carsCount = JSON.parse(localStorage.getItem('carsDetails')).length
+                    localStorage.setItem('carsCount', carsCount)
                     this.cars++
-                    let colorOfRemovedCar = car.color
-                    if ( this.parsedCarsDetails.find( car => car['color'] === colorOfRemovedCar )) {
-                        return
-                    } else {
-                        this.colorsList.splice(this.colorsList.indexOf(colorOfRemovedCar), 1)
-                    }
+                    this.collectedAmount += 20
+                    localStorage.setItem('collectedAmount', this.collectedAmount)
                 }
             })
+            if (this.parsedCarsDetails.find( car => car['color'] != colorOfRemovedCar)) {
+                this.colorsList.splice(this.colorsList.indexOf(colorOfRemovedCar), 1)
+            }
+        },
+        checkAmount () {
+            this.showAmount = !this.showAmount
+        },
+        parkCarMethod () {
+            if (parseInt(this.parkings) === parseInt(localStorage.getItem('carsCount'))) {
+                alert('Sorry No Car Parking Slots are availabe')
+                return
+            }
+            this.parkCar = true
+        },
+        getSlot () {
+            let slotArray = []
+            this.parsedCarsDetails.forEach(element => {
+                slotArray.push(element.slotNo)
+            });
+            slotArray.sort()
+            for (let index = 0; index < parseInt(this.parkings); index++) {
+                if ((slotArray).indexOf(index+1) === -1 ) {
+                    this.newCarSlot = index+1
+                    break;
+                }
+            }
+        },
+        addNewCar () {
+            this.getSlot()
+            let carObj = {
+                carNo: this.newCarNumber,
+                color: this.newCarColor,
+                slotNo: this.newCarSlot,
+                date: new Date().toDateString(),
+                time: this.formatTime()
+            }
+            let allCarDetails = JSON.parse(localStorage.getItem('carsDetails'))
+            allCarDetails.push(carObj)
+            localStorage.setItem('carsDetails', JSON.stringify(allCarDetails))
+            let carsCount = JSON.parse(localStorage.getItem('carsDetails')).length
+            localStorage.setItem('carsCount', carsCount)
+            this.cars--
+            this.parsedCarsDetails.push(carObj)
+            this.parkCar = false
+        },
+        formatTime () {
+            let date = new Date()
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            var strTime = hours + ':' + minutes + ' ' + ampm;
+            return strTime;
         }
     }
 }

@@ -10,7 +10,6 @@ export default {
     },
     methods: {
         submitParkingDetails () {
-            console.log(this.carsCount, this.parkingPlaces)
             if (this.carsCount > this.parkingPlaces) {
                 alert('Number of Cars Parked Cannot be greater than Number of Parking Places')
                 return
@@ -28,8 +27,8 @@ export default {
                 }
                 this.carsDetails.push(carObj)
             }
-            console.log(this.carsDetails)
             localStorage.setItem('carsDetails', JSON.stringify(this.carsDetails))
+            localStorage.setItem('collectedAmount', 0)
             this.$router.push({
                 name: 'Details'
             })
